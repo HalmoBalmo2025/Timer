@@ -1,0 +1,8 @@
+# Build output of cargo and dx.
+/target/
+
+# macOS
+.DS_Store
+
+# Backups of rustfmt
+**/*.rs.bk

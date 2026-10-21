@@ -1,0 +1,7 @@
+# The toolchain this project builds with, pinned together with
+# `rust-version` in Cargo.toml. rustup installs it on first use.
+[toolchain]
+channel = "1.99.1"
+profile = "minimal"
+# llvm-tools: strip tools (`dx build --release` needs them).
+components = ["llvm-tools"]

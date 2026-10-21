@@ -1,0 +1,6 @@
+[application]
+
+[bundle]
+identifier = "com.andreashalm.timer"
+publisher = "Andreas Halm"
+icon = ["assets/icon.png"]

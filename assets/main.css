@@ -1,0 +1,278 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    color-scheme: dark;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    /* The window is borderless and transparent (see window.rs); the page
+       paints its own rounded, semi-transparent panel in .app. */
+    background: transparent;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    /* The tracker section sits below the countdown and is only visible when
+       the window is dragged taller. No scrollbar in the compact state. */
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Dioxus mounts into #main. Every level down to .app is 100% tall so the
+   panel is exactly the window size and clips its overflow inside the rounded
+   corners, whatever height the window currently has. */
+#main {
+    width: 100%;
+    height: 100%;
+}
+
+.app {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.78);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: default;
+}
+
+/* Countdown: fixed 230px tall so the 250x250 window shows exactly this
+   section, with identical geometry whether it is running or not. */
+.countdown {
+    position: relative;
+    flex: none;
+    height: 230px;
+    display: flex;
+    flex-direction: column;
+}
+
+.status-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #475569;
+}
+
+.status-dot.live {
+    background: #ef4444;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+    animation: pulse 1.6s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55); }
+    70% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.countdown-display {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Shared by the <div> while running, the clickable <div> while stopped and
+   the <input> while editing: a fixed box so switching between them never
+   changes the layout. */
+.countdown-number {
+    width: 100%;
+    height: 124px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    text-align: center;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-size: 6.6rem;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #f8fafc;
+    padding: 0;
+    margin: 0;
+    transition: color 0.2s ease;
+}
+
+/* "17.5" has a digit more than "17" and has to fit the square. */
+.countdown-number.tenths {
+    font-size: 5.4rem;
+}
+
+/* The monospace point takes a full digit's width; set it smaller and pull
+   the digits around it closer together. */
+.countdown-number .point {
+    font-size: 0.7em;
+    margin: 0 -0.17em;
+}
+
+.countdown-number.warning {
+    color: #fbbf24;
+}
+
+input.countdown-number,
+.countdown-number.editable {
+    cursor: text;
+}
+
+input.countdown-number:focus {
+    outline: none;
+}
+
+.btn-row {
+    flex: none;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-row .btn {
+    flex: 1 1 0;
+    height: 40px;
+}
+
+.btn {
+    padding: 0 10px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn.start {
+    background: linear-gradient(135deg, #22c55e, #15803d);
+    box-shadow: 0 8px 18px -10px rgba(34, 197, 94, 0.65);
+}
+
+.btn.start:hover {
+    filter: brightness(1.08);
+}
+
+.btn.stop {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    box-shadow: 0 8px 18px -10px rgba(239, 68, 68, 0.65);
+}
+
+.btn.stop:hover {
+    filter: brightness(1.08);
+}
+
+.btn.reset {
+    background: linear-gradient(135deg, #475569, #334155);
+    box-shadow: 0 8px 18px -10px rgba(71, 85, 105, 0.65);
+}
+
+.btn.reset:hover {
+    filter: brightness(1.08);
+}
+
+.btn:disabled,
+.btn:disabled:hover,
+.btn:disabled:active {
+    opacity: 0.35;
+    cursor: default;
+    box-shadow: none;
+    filter: none;
+    transform: none;
+}
+
+/* Time tracker: below the countdown, revealed by dragging the window taller. */
+.tracker {
+    flex: none;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.time-display {
+    text-align: center;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-size: 1.7rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    margin: 0 0 8px;
+    color: #f8fafc;
+}
+
+.week-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.week-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 8px;
+    border-radius: 7px;
+    font-size: 0.78rem;
+    color: #94a3b8;
+}
+
+.week-row .week-day {
+    font-weight: 600;
+}
+
+.week-row .week-time {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+.week-row.today {
+    background: rgba(34, 197, 94, 0.14);
+    color: #f0fdf4;
+}
+
+.week-row.total {
+    font-weight: 700;
+    color: #f8fafc;
+    padding: 2px 8px 7px;
+    margin-bottom: 3px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0;
+}
+
+/* Month total below the days, mirroring the week total above them. */
+.week-row.total.month {
+    padding: 7px 8px 2px;
+    margin: 3px 0 0;
+    border-bottom: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Tracked time cannot be saved: the dot turns amber (its tooltip says why)
+   and the reason is spelled out below the tracker. */
+.status-dot.problem {
+    background: #f59e0b;
+}
+
+.storage-problem {
+    margin: 10px 4px 0;
+    font-size: 0.72rem;
+    line-height: 1.35;
+    color: #fbbf24;
+    user-select: text;
+    -webkit-user-select: text;
+}

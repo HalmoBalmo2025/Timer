@@ -1,0 +1,52 @@
+[package]
+# Also the name of the app bundle (`Timer.app`) and of dx's output folder
+# `target/dx/Timer`, which `install.sh` relies on.
+name = "Timer"
+version = "1.0.0"
+authors = ["Andreas Halm"]
+publish = false
+edition = "2024"
+# Same version as rust-toolchain.toml.
+rust-version = "1.99.1"
+description = "A small always-on-top macOS countdown with time tracking"
+license = "MIT"
+
+[dependencies]
+# The UI: components, signals, and the desktop window (via the `desktop`
+# feature below).
+dioxus = { version = "0.7.1", features = [] }
+# Reads and writes the JSON data file.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Finds `~/Library/Application Support` for the data file.
+dirs = "6"
+# Local dates for booking tracked time per day, week and month.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde", "std"] }
+# Sleeping until the countdown's next change; Dioxus already runs tokio.
+tokio = { version = "1", features = ["time"] }
+# Decodes the bundled PNG into the window icon.
+image = { version = "0.25", default-features = false, features = ["png"] }
+# macOS APIs: `NSProcessInfo` activities keep the app's timers precise,
+# `NSScreen` finds the area below the menu bar.
+objc2 = { version = "0.6", default-features = false, features = ["std"] }
+objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSObject", "NSProcessInfo", "NSString"] }
+objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSScreen"] }
+
+[features]
+default = ["desktop"]
+# The app is a macOS desktop app only; dx picks the platform from here.
+desktop = ["dioxus/desktop"]
+
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+opt-level = 1
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+overflow-checks = true
